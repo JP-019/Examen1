@@ -1,4 +1,9 @@
+import 'dart:convert';
+import 'package:examen_1/models/libro.dart';
+import 'package:examen_1/services/Services_json.dart';
 import 'package:flutter/material.dart';
+import '../models/libro.dart';
+import '../services/Services_json.dart';
 
 class About extends StatefulWidget {
   const About({Key? key}) : super(key: key);
@@ -8,26 +13,32 @@ class About extends StatefulWidget {
 }
 
 class AboutState extends State<About> {
-  Widget _buildExampleCards() {
-    // Aquí puedes construir las tarjetas de ejemplo
-    return Column(
-      children: [
-        Card(
-          child: ListTile(
-            title: Text('Ejemplo 1'),
-            subtitle: Text('Descripción del ejemplo 1'),
-            leading: Icon(Icons.star),
-          ),
-        ),
-        Card(
-          child: ListTile(
-            title: Text('Ejemplo 2'),
-            subtitle: Text('Descripción del ejemplo 2'),
-            leading: Icon(Icons.star),
-          ),
-        ),
-        // Puedes agregar más tarjetas aquí según sea necesario
-      ],
+  late Future<List<Libro>> _librosFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _librosFuture = _fetchLibros();
+  }
+
+  Future<List<Libro>> _fetchLibros() async {
+    try {
+      // Obtener los libros del servicio
+      return await LibroService().obtenerLibros();
+    } catch (e) {
+      // Manejar errores
+      print('Error al obtener los libros: $e');
+      throw Exception('Error al obtener los libros: $e');
+    }
+  }
+
+  Widget _buildLibroCard(Libro libro) {
+    return Card(
+      child: ListTile(
+        title: Text(libro.titulo),
+        subtitle: Text('ISBN: ${libro.isbn} | Páginas: ${libro.paginas}'),
+        leading: Icon(Icons.book),
+      ),
     );
   }
 
@@ -69,31 +80,24 @@ class AboutState extends State<About> {
       body: Drawer(
         backgroundColor: Color.fromARGB(255, 37, 37, 37),
         width: double.infinity,
-        child: ListView(
-          children: [
-            ListTile(
-              tileColor: Color.fromARGB(255, 51, 71, 59),
-              title: const Text(
-                'Por Defecto',
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              ),
-              onTap: () {
-                // Mostrar las tarjetas de ejemplo cuando se toque el elemento "Por Defecto"
-                showModalBottomSheet(
-                  context: context,
-                  builder: (context) => _buildExampleCards(),
-                );
-              },
-            ),
-            ListTile(
-              tileColor: Color.fromARGB(255, 51, 71, 59),
-              title: const Text(
-                'Favoritos',
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              ),
-              onTap: () {},
-            ),
-          ],
+        child: FutureBuilder<List<Libro>>(
+          future: _librosFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else {
+              final List<Libro> libros = snapshot.data!;
+              return ListView.builder(
+                itemCount: libros.length,
+                itemBuilder: (context, index) {
+                  final Libro libro = libros[index];
+                  return _buildLibroCard(libro);
+                },
+              );
+            }
+          },
         ),
       ),
     );
