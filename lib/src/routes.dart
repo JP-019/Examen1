@@ -18,7 +18,7 @@ final GoRouter router = GoRouter(
         GoRoute(
           path: 'About',
           builder: (BuildContext context, GoRouterState state) {
-            return const About();
+            return About();
           },
         ),
       ],
