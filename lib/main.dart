@@ -12,7 +12,8 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'App con routing',
+      debugShowCheckedModeBanner: false,
+
       routerConfig: router, // Usa 'router' definido en 'routes.dart'
     );
   }

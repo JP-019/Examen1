@@ -18,7 +18,7 @@ class MyButton extends StatelessWidget {
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.white,
-          backgroundColor: Colors.blue, // Set the text color
+          backgroundColor: Color.fromARGB(255, 0, 0, 0), // Set the text color
         ),
         child: Padding(
           padding: const EdgeInsets.all(10.0),
